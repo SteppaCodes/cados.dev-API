@@ -4,15 +4,31 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Q
 
-from . models import Advocate 
-from .serializers import AdvocateSerializer
+from . models import Advocate, Company
+from .serializers import AdvocateSerializer, CompanySerializer
 
 
 class APIHomeView(APIView):
     def get(self, request):
         data = ["Advocate:/"]
         return Response(data)
-    
+
+
+class CompaniesListView(APIView):
+    def get(self, request):
+        companies = Company.objects.all()
+        serializer = CompanySerializer(companies, many=True)
+
+        return Response(serializer.data)   
+
+
+class CompanyDetailView(APIView):
+    def get(self, request, name):
+        company = Company.objects.get(name=name)
+        serializer = CompanySerializer(company, context={'request': request})
+
+        return Response(serializer.data)
+
 
 class AdvocatesListView(APIView):
     def get(self, request):
@@ -37,7 +53,7 @@ class AdvocatesListView(APIView):
 class AdvocateDetailView(APIView):
     def get(self, request, id):
         advocate = Advocate.objects.get(id=id)
-        serializer = AdvocateSerializer(advocate)
+        serializer = AdvocateSerializer(advocate, context={'request':request})
 
         return Response(serializer.data)
     
